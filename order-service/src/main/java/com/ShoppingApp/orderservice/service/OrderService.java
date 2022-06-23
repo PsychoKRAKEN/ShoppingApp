@@ -29,7 +29,7 @@ public class OrderService {
 	private final OrderRepo orderRepo;
 	
 	@Autowired
-	private final WebClient webClient;
+	private final WebClient.Builder webClientBuilder;
 	
 	public void placeOrder(OrderRequest orderRequest)
 	{
@@ -49,8 +49,8 @@ public class OrderService {
 		
 		//Call Inventory Service if product is in stock
 		
-		InventoryResponse[] inventoryResponseArray = webClient.get()
-                .uri("http://localhost:8083/api/inventory",
+		InventoryResponse[] inventoryResponseArray = webClientBuilder.build().get()
+                .uri("http://inventory-service/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
