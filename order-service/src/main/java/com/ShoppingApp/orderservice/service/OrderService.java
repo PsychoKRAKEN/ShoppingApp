@@ -17,17 +17,19 @@ import com.ShoppingApp.orderservice.model.OrderLineIteams;
 import com.ShoppingApp.orderservice.repo.OrderRepo;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class OrderService {
 	
 	@Autowired
 	private final OrderRepo orderRepo;
 	
 	@Autowired
-	private final WebClient.Builder webClientBuilder;
+	private final WebClient webClient;
 	
 	public void placeOrder(OrderRequest orderRequest)
 	{
@@ -47,15 +49,14 @@ public class OrderService {
 		
 		//Call Inventory Service if product is in stock
 		
-		InventoryResponse[] inventoryResponseArray = webClientBuilder.build().get()
+		InventoryResponse[] inventoryResponseArray = webClient.get()
                 .uri("http://localhost:8083/api/inventory",
                         uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
                 .retrieve()
                 .bodyToMono(InventoryResponse[].class)
                 .block();
 		 
-		 boolean allProductsInStock = Arrays.stream(inventoryResponseArray)
-                 .allMatch(InventoryResponse::isInStock);
+		 boolean allProductsInStock = Arrays.stream(inventoryResponseArray).allMatch(InventoryResponse::isInStock);
 		
 		
 		if(allProductsInStock) {
